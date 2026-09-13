@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import './BusinessAuthentication.css'
+import  api  from "../api.js";
 
 const initialFormData = {
   storeName: '',
   address: '',
   description: '',
   logo: null,
+  storePhone: '',
+  storeEmail: '',
   fullName: '',
   email: '',
   phone: '',
   password: '',
-  confirmPassword: '',
+  password_confirmation: '',
   agreeToTerms: false,
 }
 
@@ -59,11 +62,14 @@ function BusinessSignup() {
   const [logoPreview, setLogoPreview] = useState(null)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const fileInputRef = useRef(null)
 
   useEffect(() => {
     return () => {
-      if (logoPreview) URL.revokeObjectURL(logoPreview)
+      if (logoPreview) {
+        URL.revokeObjectURL(logoPreview)
+      }
     }
   }, [logoPreview])
 
@@ -72,9 +78,41 @@ function BusinessSignup() {
 
     if (type === 'file') {
       const file = files[0] || null
-      if (logoPreview) URL.revokeObjectURL(logoPreview)
-      setLogoPreview(file ? URL.createObjectURL(file) : null)
-      setFormData((prev) => ({ ...prev, [name]: file }))
+
+      if (!file) {
+        return
+      }
+
+      const allowedTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+      ]
+
+      if (!allowedTypes.includes(file.type)) {
+        setError('Logo must be a JPG, JPEG, PNG, or WEBP image.')
+        e.target.value = ''
+        return
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        setError('Logo must not be larger than 2 MB.')
+        e.target.value = ''
+        return
+      }
+
+      if (logoPreview) {
+        URL.revokeObjectURL(logoPreview)
+      }
+
+      setLogoPreview(URL.createObjectURL(file))
+
+      setFormData((prev) => ({
+        ...prev,
+        logo: file,
+      }))
+
+      setError('')
       return
     }
 
@@ -82,20 +120,53 @@ function BusinessSignup() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }))
+
+    setError('')
   }
 
   const handleRemoveLogo = () => {
-    if (logoPreview) URL.revokeObjectURL(logoPreview)
+    if (logoPreview) {
+      URL.revokeObjectURL(logoPreview)
+    }
+
     setLogoPreview(null)
-    setFormData((prev) => ({ ...prev, logo: null }))
-    if (fileInputRef.current) fileInputRef.current.value = ''
+
+    setFormData((prev) => ({
+      ...prev,
+      logo: null,
+    }))
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }
 
   const handleNext = () => {
-    if (!formData.storeName.trim() || !formData.address.trim() || !formData.description.trim()) {
-      setError('Please complete all store details before continuing.')
+    if (!formData.storeName.trim()) {
+      setError('Store name is required.')
       return
     }
+
+    if (!formData.address.trim()) {
+      setError('Store address is required.')
+      return
+    }
+
+    if (!formData.storePhone.trim()) {
+      setError('Store phone is required.')
+      return
+    }
+
+    if (!formData.storeEmail.trim()) {
+      setError('Store email is required.')
+      return
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.storeEmail)) {
+      setError('Please enter a valid store email.')
+      return
+    }
+
     setError('')
     setStep(2)
   }
@@ -105,51 +176,156 @@ function BusinessSignup() {
     setStep(1)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (!formData.fullName.trim()) {
+      setError('Full name is required.')
+      return
+    }
+
+    if (!formData.email.trim()) {
+      setError('Email is required.')
+      return
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Please enter a valid email.')
+      return
+    }
+
+    if (!formData.phone.trim()) {
+      setError('Phone number is required.')
+      return
+    }
 
     if (formData.password.length < 8) {
       setError('Password must be at least 8 characters.')
       return
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.password_confirmation) {
       setError('Passwords do not match.')
       return
     }
 
+    if (!formData.agreeToTerms) {
+      setError('Please agree to the Seller Terms and Merchant Agreement.')
+      return
+    }
+
     setError('')
-    console.log(formData)
+    setIsSubmitting(true)
+
+    try {
+      const payload = new FormData()
+
+      payload.append('fullName', formData.fullName)
+      payload.append('phone', formData.phone)
+      payload.append('email', formData.email)
+      payload.append('password', formData.password)
+      payload.append('password_confirmation', formData.password_confirmation)
+
+      payload.append('storeName', formData.storeName)
+      payload.append('address', formData.address)
+      payload.append('storePhone', formData.storePhone)
+      payload.append('storeEmail', formData.storeEmail)
+      payload.append('description', formData.description)
+
+      if (formData.logo) {
+        payload.append('logo', formData.logo)
+      }
+
+      const response = api.post('/api/business/register', {
+        method: 'POST',
+        body: payload,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        if (data.errors) {
+          const firstError = Object.values(data.errors)[0]?.[0]
+          setError(firstError || 'Please check the form and try again.')
+        } else {
+          setError(data.message || 'Something went wrong. Please try again.')
+        }
+
+        return
+      }
+
+      console.log(data)
+
+    } catch (err) {
+      setError('Unable to create your business account. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const passwordsMismatch = formData.confirmPassword.length > 0 && formData.password !== formData.confirmPassword
-  const passwordsMatch = formData.confirmPassword.length > 0 && formData.password === formData.confirmPassword
+  const passwordsMismatch =
+      formData.password_confirmation.length > 0 &&
+      formData.password !== formData.password_confirmation
+
+  const passwordsMatch =
+      formData.password_confirmation.length > 0 &&
+      formData.password === formData.password_confirmation
 
   return (
       <div className="business-signup">
         <div className="signup-container">
+
           <div className="signup-header">
             <h1>Set up your business account</h1>
             <p>Add your store details and create your account to start selling.</p>
           </div>
 
           <div className="stepper">
-            <div className={`step ${step === 1 ? 'is-active' : ''} ${step > 1 ? 'is-complete' : ''}`}>
-              <span className="step-marker">{step > 1 ? <CheckIcon /> : '1'}</span>
-              <span className="step-label">Store details</span>
+            <div
+                className={`step ${
+                    step === 1 ? 'is-active' : ''
+                } ${step > 1 ? 'is-complete' : ''}`}
+            >
+            <span className="step-marker">
+              {step > 1 ? <CheckIcon /> : '1'}
+            </span>
+
+              <span className="step-label">
+              Store details
+            </span>
             </div>
-            <div className={`step-line ${step > 1 ? 'is-complete' : ''}`} />
-            <div className={`step ${step === 2 ? 'is-active' : ''}`}>
-              <span className="step-marker">2</span>
-              <span className="step-label">Your account</span>
+
+            <div
+                className={`step-line ${
+                    step > 1 ? 'is-complete' : ''
+                }`}
+            />
+
+            <div
+                className={`step ${
+                    step === 2 ? 'is-active' : ''
+                }`}
+            >
+            <span className="step-marker">
+              2
+            </span>
+
+              <span className="step-label">
+              Your account
+            </span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit}>
+
             {step === 1 && (
                 <div className="form-step">
+
                   <div className="form-group">
-                    <label htmlFor="storeName">Store name</label>
+                    <label htmlFor="storeName">
+                      Store name
+                    </label>
+
                     <input
                         id="storeName"
                         type="text"
@@ -158,12 +334,16 @@ function BusinessSignup() {
                         onChange={handleChange}
                         placeholder="e.g. Northfield Home Goods"
                         autoComplete="organization"
+                        maxLength={255}
                         required
                     />
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="address">Store address</label>
+                    <label htmlFor="address">
+                      Store address
+                    </label>
+
                     <input
                         id="address"
                         type="text"
@@ -172,12 +352,56 @@ function BusinessSignup() {
                         onChange={handleChange}
                         placeholder="Street, city, postal code"
                         autoComplete="street-address"
+                        maxLength={255}
                         required
                     />
                   </div>
 
+                  <div className="form-row">
+
+                    <div className="form-group">
+                      <label htmlFor="storePhone">
+                        Store phone
+                      </label>
+
+                      <input
+                          id="storePhone"
+                          type="tel"
+                          name="storePhone"
+                          value={formData.storePhone}
+                          onChange={handleChange}
+                          placeholder="Store phone number"
+                          autoComplete="tel"
+                          maxLength={20}
+                          required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="storeEmail">
+                        Store email
+                      </label>
+
+                      <input
+                          id="storeEmail"
+                          type="email"
+                          name="storeEmail"
+                          value={formData.storeEmail}
+                          onChange={handleChange}
+                          placeholder="store@company.com"
+                          autoComplete="email"
+                          maxLength={255}
+                          required
+                      />
+                    </div>
+
+                  </div>
+
                   <div className="form-group">
-                    <label htmlFor="description">Store description</label>
+                    <label htmlFor="description">
+                      Store description
+                    </label>
+
                     <textarea
                         id="description"
                         name="description"
@@ -185,18 +409,33 @@ function BusinessSignup() {
                         onChange={handleChange}
                         placeholder="Tell customers what you sell and what makes your store worth a visit."
                         rows="4"
-                        required
                     />
                   </div>
 
                   <div className="form-group">
-                    <label>Store logo</label>
-                    <div className="logo-dropzone" onClick={() => fileInputRef.current?.click()}>
+                    <label>
+                      Store logo
+                    </label>
+
+                    <div
+                        className="logo-dropzone"
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+
                       {logoPreview ? (
                           <div className="logo-preview">
-                            <img src={logoPreview} alt="Store logo preview" />
+
+                            <img
+                                src={logoPreview}
+                                alt="Store logo preview"
+                            />
+
                             <div className="logo-preview-info">
-                              <span>{formData.logo?.name}</span>
+
+                        <span>
+                          {formData.logo?.name}
+                        </span>
+
                               <button
                                   type="button"
                                   className="logo-remove"
@@ -207,40 +446,65 @@ function BusinessSignup() {
                               >
                                 Remove
                               </button>
+
                             </div>
+
                           </div>
                       ) : (
                           <div className="logo-placeholder">
+
                             <UploadIcon />
-                            <span>Click to upload your store logo</span>
-                            <span className="logo-hint">PNG or JPG, up to 5MB</span>
+
+                            <span>
+                        Click to upload your store logo
+                      </span>
+
+                            <span className="logo-hint">
+                        JPG, JPEG, PNG or WEBP, up to 2 MB
+                      </span>
+
                           </div>
                       )}
+
                       <input
                           ref={fileInputRef}
                           type="file"
                           name="logo"
-                          accept="image/*"
+                          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                           onChange={handleChange}
                           hidden
                       />
+
                     </div>
                   </div>
 
-                  {error && <p className="form-error">{error}</p>}
+                  {error && (
+                      <p className="form-error">
+                        {error}
+                      </p>
+                  )}
 
                   <div className="form-actions">
-                    <button type="button" className="btn-primary" onClick={handleNext}>
+                    <button
+                        type="button"
+                        className="btn-primary"
+                        onClick={handleNext}
+                    >
                       Continue
                     </button>
                   </div>
+
                 </div>
             )}
 
             {step === 2 && (
                 <div className="form-step">
+
                   <div className="form-group">
-                    <label htmlFor="fullName">Full name</label>
+                    <label htmlFor="fullName">
+                      Full name
+                    </label>
+
                     <input
                         id="fullName"
                         type="text"
@@ -249,13 +513,18 @@ function BusinessSignup() {
                         onChange={handleChange}
                         placeholder="Enter your full name"
                         autoComplete="name"
+                        maxLength={255}
                         required
                     />
                   </div>
 
                   <div className="form-row">
+
                     <div className="form-group">
-                      <label htmlFor="email">Email</label>
+                      <label htmlFor="email">
+                        Email
+                      </label>
+
                       <input
                           id="email"
                           type="email"
@@ -264,12 +533,16 @@ function BusinessSignup() {
                           onChange={handleChange}
                           placeholder="you@company.com"
                           autoComplete="email"
+                          maxLength={255}
                           required
                       />
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="phone">Phone number</label>
+                      <label htmlFor="phone">
+                        Phone number
+                      </label>
+
                       <input
                           id="phone"
                           type="tel"
@@ -278,15 +551,22 @@ function BusinessSignup() {
                           onChange={handleChange}
                           placeholder="Enter your phone number"
                           autoComplete="tel"
+                          maxLength={20}
                           required
                       />
                     </div>
+
                   </div>
 
                   <div className="form-row">
+
                     <div className="form-group">
-                      <label htmlFor="password">Password</label>
+                      <label htmlFor="password">
+                        Password
+                      </label>
+
                       <div className="password-field">
+
                         <input
                             id="password"
                             type={showPassword ? 'text' : 'password'}
@@ -298,45 +578,90 @@ function BusinessSignup() {
                             minLength={8}
                             required
                         />
+
                         <button
                             type="button"
                             className="password-toggle"
-                            onClick={() => setShowPassword((prev) => !prev)}
-                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                            onClick={() =>
+                                setShowPassword((prev) => !prev)
+                            }
+                            aria-label={
+                              showPassword
+                                  ? 'Hide password'
+                                  : 'Show password'
+                            }
                         >
-                          {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                          {showPassword ? (
+                              <EyeOffIcon />
+                          ) : (
+                              <EyeIcon />
+                          )}
                         </button>
+
                       </div>
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="confirmPassword">Confirm password</label>
+                      <label htmlFor="password_confirmation">
+                        Confirm password
+                      </label>
+
                       <div className="password-field">
+
                         <input
-                            id="confirmPassword"
-                            type={showConfirmPassword ? 'text' : 'password'}
-                            name="confirmPassword"
-                            value={formData.confirmPassword}
+                            id="password_confirmation"
+                            type={
+                              showConfirmPassword
+                                  ? 'text'
+                                  : 'password'
+                            }
+                            name="password_confirmation"
+                            value={formData.password_confirmation}
                             onChange={handleChange}
                             placeholder="Re-enter your password"
                             autoComplete="new-password"
                             required
                         />
+
                         <button
                             type="button"
                             className="password-toggle"
-                            onClick={() => setShowConfirmPassword((prev) => !prev)}
-                            aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                            onClick={() =>
+                                setShowConfirmPassword((prev) => !prev)
+                            }
+                            aria-label={
+                              showConfirmPassword
+                                  ? 'Hide password'
+                                  : 'Show password'
+                            }
                         >
-                          {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
+                          {showConfirmPassword ? (
+                              <EyeOffIcon />
+                          ) : (
+                              <EyeIcon />
+                          )}
                         </button>
+
                       </div>
-                      {passwordsMismatch && <span className="field-hint field-hint-error">Passwords don't match</span>}
-                      {passwordsMatch && <span className="field-hint field-hint-success">Passwords match</span>}
+
+                      {passwordsMismatch && (
+                          <span className="field-hint field-hint-error">
+                      Passwords don't match
+                    </span>
+                      )}
+
+                      {passwordsMatch && (
+                          <span className="field-hint field-hint-success">
+                      Passwords match
+                    </span>
+                      )}
+
                     </div>
+
                   </div>
 
                   <label className="checkbox-field">
+
                     <input
                         type="checkbox"
                         name="agreeToTerms"
@@ -344,21 +669,46 @@ function BusinessSignup() {
                         onChange={handleChange}
                         required
                     />
-                    <span>I agree to the <strong>Seller Terms</strong> and <strong>Merchant Agreement</strong>.</span>
+
+                    <span>
+                  I agree to the <strong>Seller Terms</strong> and{' '}
+                      <strong>Merchant Agreement</strong>.
+                </span>
+
                   </label>
 
-                  {error && <p className="form-error">{error}</p>}
+                  {error && (
+                      <p className="form-error">
+                        {error}
+                      </p>
+                  )}
 
                   <div className="form-actions form-actions-split">
-                    <button type="button" className="btn-secondary" onClick={handleBack}>
+
+                    <button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={handleBack}
+                        disabled={isSubmitting}
+                    >
                       Back
                     </button>
-                    <button type="submit" className="btn-primary">
-                      Create business account
+
+                    <button
+                        type="submit"
+                        className="btn-primary"
+                        disabled={isSubmitting}
+                    >
+                      {isSubmitting
+                          ? 'Creating account...'
+                          : 'Create business account'}
                     </button>
+
                   </div>
+
                 </div>
             )}
+
           </form>
         </div>
       </div>
