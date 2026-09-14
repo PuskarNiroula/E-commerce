@@ -3,9 +3,9 @@
 namespace Shop\Service;
 
 use Shop\Dto\ShopCreateDto;
+use Shop\Exceptions\DuplicateShopEmailException;
 use Shop\Exceptions\DuplicateShopNameException;
 use Shop\RepositoryInterface\ShopRepositoryInterface;
-use User\Exception\DuplicateShopEmailException;
 
 class ShopService
 {

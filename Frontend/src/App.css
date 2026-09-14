@@ -1,6 +1,25 @@
 #root{
   width: 100% !important;
 }
+
+.form-group input,
+.form-group textarea,
+.password-field input {
+  background-color: #ffffff;
+  color: #222222;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.password-field input:focus {
+  background-color: #ffffff;
+  color: #222222;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #888888;
+}
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -25,7 +44,7 @@
 
 .signup-modal h2 {
   font-size: 28px;
-  color: #111827;
+  color: #f8f8fa;
   margin-bottom: 10px;
 }
 
