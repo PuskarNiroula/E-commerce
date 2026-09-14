@@ -27,6 +27,7 @@
             "Authentication\\": "core/Authentication/",
             "User\\": "core/User/",
             "Shop\\": "core/Shop/",
+            "Helper\\": "core/Helper/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

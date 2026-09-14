@@ -22,6 +22,7 @@ class ShopRepository implements ShopRepositoryInterface
             'phone' => $shopCreateDto->phone,
             'address' => $shopCreateDto->address,
             'description' => $shopCreateDto->description,
+            'owner_id' => $shopCreateDto->owner_id,
         ]);
 
         if ($shopCreateDto->logo !== null) {

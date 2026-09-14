@@ -3,6 +3,7 @@
 namespace User\Service;
 
 use App\Models\User;
+use Exception;
 use User\Dto\UserCreateDto;
 use User\Exception\DuplicatePhoneNumberException;
 use User\Exception\DuplicateUserEmailException;
@@ -24,6 +25,18 @@ readonly class UserService
         $this->verifyNewUserEmail($userCreateDto->email);
         $this->verifyNewUserPhone($userCreateDto->phone);
         return $this->userRepository->createUser($userCreateDto);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function login(string $email, string $password):User{
+        $user = $this->userRepository->getUserByEmail($email);
+        if(password_verify($password, $user->password)){
+            return $user;
+        }
+        throw new Exception("Invalid credentials");
+
     }
 
     /**

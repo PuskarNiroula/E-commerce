@@ -20,7 +20,7 @@ class UserRepository implements UserRepositoryInterface
             'email'=>$userCreateDto->email,
             'phone'=>$userCreateDto->phone,
             'password'=>$userCreateDto->password,
-           'role'=>$userCreateDto->role
+            'role'=>$userCreateDto->role
         ]);
     }
 
@@ -40,4 +40,5 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::where('phone', $phone)->first();
     }
+
 }

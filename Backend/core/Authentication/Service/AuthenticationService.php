@@ -7,6 +7,7 @@ use Shop\Dto\ShopRegistrationDto;
 use Shop\Exceptions\DuplicateShopNameException;
 use Shop\Service\ShopService;
 use Throwable;
+use User\Enum\UserRoleEnum;
 use User\Exception\DuplicatePhoneNumberException;
 use User\Exception\DuplicateUserEmailException;
 use User\Service\UserService;
@@ -27,8 +28,8 @@ readonly class AuthenticationService
      */
     public function registerBusiness(ShopRegistrationDto $dto):void{
         $userDto = $dto->user;
+        $userDto->role = UserRoleEnum::ADMIN->value;
         $shopDto = $dto->shop;
-
         DB::beginTransaction();
         try{
            $user= $this->userService->createUser($userDto);
@@ -39,6 +40,20 @@ readonly class AuthenticationService
             DB::rollBack();
             throw $e;
         }
+
+    }
+    public function login(string $email,string $password){
+
+        try{
+            $user = $this->userService->login($email, $password);
+
+        }catch (Exception $e){
+            throw $e;
+        }
+
+
+
+
 
     }
 
