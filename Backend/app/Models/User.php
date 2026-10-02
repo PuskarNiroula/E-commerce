@@ -20,7 +20,7 @@ class User extends Authenticatable implements JWTSubject
     /**
      * @return mixed
      */
-    public function getJWTIdentifier():array
+    public function getJWTIdentifier():int
     {
         return $this->getKey();
     }
@@ -35,4 +35,5 @@ class User extends Authenticatable implements JWTSubject
             "email"=>$this->email,
         ]);
     }
+
 }

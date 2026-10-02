@@ -10,5 +10,6 @@ Route::get('/user', function (Request $request) {
 
     Route::controller(AuthenticationApiController::class)->group(function () {
         Route::post('business/register','registerShop')->name('business.register');
+        Route::post('/login','login')->name('api.login');
 });
 

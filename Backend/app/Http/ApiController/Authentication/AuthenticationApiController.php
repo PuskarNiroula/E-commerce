@@ -4,6 +4,7 @@ namespace App\Http\ApiController\Authentication;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BusinessRegisterRequest;
 use App\Http\Requests\LoginRequest;
+use Authentication\Dto\LoginDto;
 use Authentication\Service\AuthenticationService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -59,6 +60,22 @@ use User\Dto\UserCreateDto;
     public function login(LoginRequest $request):JsonResponse{
 
         try{
+            $loginDto = new LoginDto();
+            $loginDto->email = $request->email;
+            $loginDto->password = $request->password;
+
+           $response=$this->authenticationService->login($loginDto);
+           return response()->json([
+               'data' => $response,
+               'message' => ' login successfully'
+           ]);
+
+
+        }catch(Exception $e){
+            return response()->json([
+                'error' => $e->getMessage(),
+                'message'=>"invalid credentials"
+            ],400);
 
         }
 

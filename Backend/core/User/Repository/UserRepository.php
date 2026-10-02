@@ -3,6 +3,7 @@
 namespace User\Repository;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use User\Dto\UserCreateDto;
 use User\RepositoryInterface\UserRepositoryInterface;
 
@@ -19,7 +20,7 @@ class UserRepository implements UserRepositoryInterface
             'name'=>$userCreateDto->fullName,
             'email'=>$userCreateDto->email,
             'phone'=>$userCreateDto->phone,
-            'password'=>$userCreateDto->password,
+            'password'=>Hash::make($userCreateDto->password),
             'role'=>$userCreateDto->role
         ]);
     }

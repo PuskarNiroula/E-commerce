@@ -4,7 +4,7 @@ namespace Helper;
 
 use App\Models\User;
 use Exception;
-use PHPOpenSourceSaver\JWTAuth\JWTAuth;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class JwtHelper
 {
@@ -36,7 +36,7 @@ class JwtHelper
 
         return [
             'user_id' => (int) $payload->get('user_id'),
-            'role' => $payload->get('role')
+            'role' => $payload->get('role'),
         ];
     }
 

@@ -3,7 +3,9 @@
 namespace User\Service;
 
 use App\Models\User;
+use App\ViewModels\LoginResponseViewModel;
 use Exception;
+use Helper\JwtHelper;
 use User\Dto\UserCreateDto;
 use User\Exception\DuplicatePhoneNumberException;
 use User\Exception\DuplicateUserEmailException;
@@ -12,7 +14,8 @@ use User\RepositoryInterface\UserRepositoryInterface;
 readonly class UserService
 {
     public function __construct(
-        private UserRepositoryInterface $userRepository
+        private UserRepositoryInterface $userRepository,
+        private JwtHelper $jwtHelper
     ){}
 
     /**
@@ -30,12 +33,20 @@ readonly class UserService
     /**
      * @throws Exception
      */
-    public function login(string $email, string $password):User{
+    public function login(string $email, string $password):LoginResponseViewModel{
         $user = $this->userRepository->getUserByEmail($email);
-        if(password_verify($password, $user->password)){
-            return $user;
-        }
-        throw new Exception("Invalid credentials");
+        if(!$user || !password_verify($password, $user->password))
+            throw new Exception("Invalid credentials");
+
+        $responseDto=new LoginResponseViewModel();
+       try{
+           $responseDto->token=$this->jwtHelper->generateToken($user);
+           $responseDto->user=$user;
+
+           return $responseDto;
+       }catch (Exception $e){
+           throw new Exception($e);
+       }
 
     }
 
