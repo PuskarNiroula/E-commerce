@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\ApiController\Authentication;
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BusinessRegisterRequest;
 use App\Http\Requests\LoginRequest;
@@ -10,7 +11,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Shop\Dto\ShopCreateDto;
 use Shop\Dto\ShopRegistrationDto;
-use Shop\Exceptions\DuplicateShopNameException;
 use Throwable;
 use User\Dto\UserCreateDto;
 
@@ -65,11 +65,24 @@ use User\Dto\UserCreateDto;
             $loginDto->password = $request->password;
 
            $response=$this->authenticationService->login($loginDto);
-           return response()->json([
+            $cookie = cookie(
+                'bearer_token',
+                $response->token,
+                60*24*7,
+                '/',
+                null,
+                false,
+                true,
+                false,
+                'lax'
+            );
+
+           $response= response()->json([
                'data' => $response,
                'message' => ' login successfully'
            ]);
-
+           $response->headers->setCookie($cookie);
+           return $response;
 
         }catch(Exception $e){
             return response()->json([

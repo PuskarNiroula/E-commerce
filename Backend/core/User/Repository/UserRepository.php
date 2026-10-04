@@ -41,5 +41,9 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::where('phone', $phone)->first();
     }
+    public function getUserById(int $userId)
+    {
+        return User::findOrFail($userId);
+    }
 
 }

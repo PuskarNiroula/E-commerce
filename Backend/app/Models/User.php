@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
@@ -34,6 +33,11 @@ class User extends Authenticatable implements JWTSubject
             'user_id'=>$this->id,
             "email"=>$this->email,
         ]);
+    }
+
+    public function shop():BelongsTo{
+        return $this->belongsTo(Shop::class,'owner_id','id');
+
     }
 
 }
