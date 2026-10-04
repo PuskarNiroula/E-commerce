@@ -6,6 +6,10 @@ import BusinessSignup from './Authentication/BusinessAuthentication.jsx'
 import Login from './Authentication/login.jsx'
 import AdminLayout from './Admin/AdminLayout.jsx'
 import AdminDashboard from './Admin/AdminPages/AdminDashboard.jsx'
+import ExtendedSubscription from './Admin/AdminPages/ExtendSubscription.jsx'
+import { ToastContainer } from "react-toastify";
+
+
 import './Admin/css/AdminSidebar.css'
 import './index.css'
 
@@ -33,6 +37,7 @@ function Home() {
       </header>
 
       <main className="hero-section">
+
         <div className="hero-content">
           <h1>Welcome to E-commerce</h1>
 
@@ -156,9 +161,9 @@ function App() {
           path="/signup/business"
           element={<BusinessSignup />}
         />
-        <Route path="/admin" element={<AdminLayout />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
+          <Route path='/admin/subscription/renew' element={<ExtendedSubscription />} />
           {/*<Route path="products" element={<Products />} />*/}
           {/*<Route path="orders" element={<Orders />} />*/}
           {/*<Route path="users" element={<Users />} />*/}

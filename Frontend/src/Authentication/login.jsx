@@ -1,10 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import api from "./../api.js";
 import "./login.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    const navigate = useNavigate();
 
     const [form, setForm] = useState({
         email: "",
@@ -26,22 +32,26 @@ export default function Login() {
         }
 
         setLoading(true);
-        try{
-            const response = await api.post('/api/login', form);
-            console.log(response);
 
-        }catch (error) {
-            console.error('Error logging in:', error);
-        }finally {
+        try {
+            const response = await api.post("/login", form);
+
+            if (response.data.data.user.role === "admin") {
+                navigate("/admin");
+            } else {
+                toast.error("You are not an admin!");
+            }
+        } catch (error) {
+            console.error("Error logging in:", error);
+        } finally {
             setLoading(false);
-
         }
-
-
     };
 
     return (
+
         <div className="login-page">
+            <ToastContainer position="top-right" autoClose={3000} />
             <div className="login-container">
                 <div className="login-header">
                     <div className="login-logo">
@@ -138,7 +148,11 @@ export default function Login() {
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
                                     className="password-toggle"
-                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    aria-label={
+                                        showPassword
+                                            ? "Hide password"
+                                            : "Show password"
+                                    }
                                 >
                                     {showPassword ? (
                                         <svg
