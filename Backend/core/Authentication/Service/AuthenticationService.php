@@ -1,6 +1,8 @@
 <?php
 namespace Authentication\Service;
 
+use App\ViewModels\LoginResponseViewModel;
+use Authentication\Dto\LoginDto;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Shop\Dto\ShopRegistrationDto;
@@ -42,19 +44,12 @@ readonly class AuthenticationService
         }
 
     }
-    public function login(string $email,string $password){
 
-        try{
-            $user = $this->userService->login($email, $password);
-
-        }catch (Exception $e){
-            throw $e;
-        }
-
-
-
-
-
+    /**
+     * @throws Exception
+     */
+    public function login(LoginDto $dto):LoginResponseViewModel{
+          return $this->userService->login($dto->email, $dto->password);
     }
 
 

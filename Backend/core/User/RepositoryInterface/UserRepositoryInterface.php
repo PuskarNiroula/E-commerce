@@ -10,4 +10,5 @@ interface UserRepositoryInterface
     public function createUser(UserCreateDto $userCreateDto);
     public function getUserByEmail(string $email);
     public function getUserByPhone(string $phone);
+    public function getUserById(int $userId);
 }
