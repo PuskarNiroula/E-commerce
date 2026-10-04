@@ -3,9 +3,15 @@ import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import './App.css'
 import BusinessSignup from './Authentication/BusinessAuthentication.jsx'
+import Login from './Authentication/login.jsx'
+import AdminLayout from './Admin/AdminLayout.jsx'
+import AdminDashboard from './Admin/AdminPages/AdminDashboard.jsx'
+import './Admin/css/AdminSidebar.css'
+import './index.css'
 
 function Home() {
   const [showSignup, setShowSignup] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
 
   return (
     <div className="app">
@@ -13,7 +19,9 @@ function Home() {
         <div className="logo">E-commerce</div>
 
         <nav className="nav-buttons">
-          <button className="login-btn">Login</button>
+          <Link to="/login" className="login-btn">
+            Login
+          </Link>
 
           <button
             className="signup-btn"
@@ -142,11 +150,20 @@ function App() {
         <Route path="/" element={<Home />} />
 
         <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
 
         <Route
           path="/signup/business"
           element={<BusinessSignup />}
         />
+        <Route path="/admin" element={<AdminLayout />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          {/*<Route path="products" element={<Products />} />*/}
+          {/*<Route path="orders" element={<Orders />} />*/}
+          {/*<Route path="users" element={<Users />} />*/}
+          {/*<Route path="settings" element={<Settings />} />*/}
+        </Route>
       </Routes>
     </BrowserRouter>
   )
