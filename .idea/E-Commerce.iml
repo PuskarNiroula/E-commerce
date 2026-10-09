@@ -8,6 +8,8 @@
       <sourceFolder url="file://$MODULE_DIR$/Backend/core/User" isTestSource="false" packagePrefix="User\" />
       <sourceFolder url="file://$MODULE_DIR$/Backend/database/factories" isTestSource="false" packagePrefix="Database\Factories\" />
       <sourceFolder url="file://$MODULE_DIR$/Backend/database/seeders" isTestSource="false" packagePrefix="Database\Seeders\" />
+      <sourceFolder url="file://$MODULE_DIR$/Backend/core/Helper" isTestSource="false" packagePrefix="Helper\" />
+      <sourceFolder url="file://$MODULE_DIR$/Backend/core/Subscription" isTestSource="false" packagePrefix="Subscription\" />
       <sourceFolder url="file://$MODULE_DIR$/Backend/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/Backend/tests" isTestSource="true" packagePrefix="Tests\" />
       <excludeFolder url="file://$MODULE_DIR$/Backend/vendor/brick/math" />
@@ -124,6 +126,8 @@
       <excludeFolder url="file://$MODULE_DIR$/Backend/vendor/tijsverkoyen/css-to-inline-styles" />
       <excludeFolder url="file://$MODULE_DIR$/Backend/vendor/vlucas/phpdotenv" />
       <excludeFolder url="file://$MODULE_DIR$/Backend/vendor/voku/portable-ascii" />
+      <excludeFolder url="file://$MODULE_DIR$/Backend/storage/app" />
+      <excludeFolder url="file://$MODULE_DIR$/Backend/storage/framework" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
