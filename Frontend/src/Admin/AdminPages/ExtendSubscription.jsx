@@ -13,7 +13,7 @@ export default function ExtendSubscription() {
         const fetchPlans = async () => {
             try {
                 const response = await securedApi.get("/admin/plans");
-                setPlans(response.data);
+                setPlans(response.data.subscriptionPlan);
             } catch (error) {
                 console.error("Error fetching plans:", error);
                 setError("Unable to load subscription plans. Please try again.");
@@ -109,6 +109,7 @@ export default function ExtendSubscription() {
                         </div>
 
                         <div className="plans-grid">
+
                             {plans.map((plan, index) => {
                                 const isSelected = selectedPlan?.id === plan.id;
                                 const isFeatured = plans.length > 1 &&

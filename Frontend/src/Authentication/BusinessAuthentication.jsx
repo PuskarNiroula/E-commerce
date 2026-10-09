@@ -236,7 +236,7 @@ function BusinessSignup() {
         payload.append('logo', formData.logo)
       }
 
-      const response = api.post('/api/business/register',payload)
+      const response = api.post('/business/register',payload)
 
       const data = await response.json()
 

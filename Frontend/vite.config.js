@@ -3,5 +3,13 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  server:{
+    host: true,
+    proxy:{
+      '/api':{
+        target: 'http://192.168.18.6:8000',
+        changeOrigin: true,
+      },
+    }
+  }
 })

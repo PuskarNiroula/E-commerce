@@ -34,6 +34,7 @@ export default function Login() {
         setLoading(true);
 
         try {
+            api.defaults.withCredentials = true;
             const response = await api.post("/login", form);
 
             if (response.data.data.user.role === "admin") {
