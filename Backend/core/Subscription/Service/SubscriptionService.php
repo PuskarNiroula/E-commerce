@@ -30,7 +30,7 @@ readonly class SubscriptionService
         $vm = new AvailableSubscriptionPlanResponseDto();
         foreach ($plans as $plan){
             $data = new SubscriptionPlanDto();
-            $data->id = $plan->id;
+            $data->id = $plan->subscription_plan_id;
             $data->name = $plan->name;
             $data->price = $plan->price;
             $vm ->subscriptionPlan[] = $data;

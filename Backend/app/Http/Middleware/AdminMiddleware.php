@@ -18,6 +18,6 @@ class AdminMiddleware
         if($request->user()->role == 'admin')
             return $next($request);
 
-       return response()->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+       return response()->json(['message' => 'admin nahi he re bsdk'], 401);
     }
 }

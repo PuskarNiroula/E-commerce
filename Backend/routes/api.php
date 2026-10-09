@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 });
 
     Route::middleware(JwtAuthenticationMiddleware::class)->group(function () {
-
         Route::middleware(AdminMiddleware::class)->group(function () {
             Route::prefix('admin')->group(function () {
                 Route::controller(SubscriptionController::class)->group(function () {
