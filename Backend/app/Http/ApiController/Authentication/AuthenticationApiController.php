@@ -65,24 +65,23 @@ use User\Dto\UserCreateDto;
             $loginDto->password = $request->password;
 
            $response=$this->authenticationService->login($loginDto);
+
             $cookie = cookie(
                 'bearer_token',
                 $response->token,
-                60*24*7,
+                60 * 24 * 7,
                 '/',
                 null,
+                true,   // Secure: HTTPS required
+                true,   // HttpOnly
                 false,
-                true,
-                false,
-                'lax'
+                'none'
             );
 
-           $response= response()->json([
-               'data' => $response,
-               'message' => ' login successfully'
-           ]);
-           $response->headers->setCookie($cookie);
-           return $response;
+            return response()->json([
+                'data' => $response,
+                'message' => 'login successfully',
+            ])->withCookie($cookie);
 
         }catch(Exception $e){
             return response()->json([
