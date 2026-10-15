@@ -1,28 +1,86 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import securedApi from "../../securedApi.js";
 import "../css/ExtendSubscription.css";
+
+const PAYMENT_METHODS = [
+    {
+        id: "esewa",
+        name: "eSewa",
+        description: "Pay securely with eSewa",
+    },
+    {
+        id: "khalti",
+        name: "Khalti",
+        description: "Pay securely with Khalti",
+    },
+    {
+        id: "stripe",
+        name: "Stripe",
+        description: "Pay securely with a card",
+    },
+];
+
+const PAYMENT_ORIGINS = {
+    esewa: [
+        "https://esewa.com.np",
+        "https://rc-epay.esewa.com.np",
+        "https://epay.esewa.com.np",
+    ],
+    khalti: [
+        "https://khalti.com",
+        "https://pay.khalti.com",
+    ],
+    stripe: [
+        "https://checkout.stripe.com",
+    ],
+};
 
 export default function ExtendSubscription() {
     const [plans, setPlans] = useState([]);
     const [selectedPlan, setSelectedPlan] = useState(null);
+    const [selectedMethod, setSelectedMethod] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [paymentError, setPaymentError] = useState("");
+    const [paymentLoading, setPaymentLoading] = useState(false);
+
+    const attemptRef = useRef(null);
+    const inFlightRef = useRef(false);
 
     useEffect(() => {
+        let active = true;
+
         const fetchPlans = async () => {
             try {
                 const response = await securedApi.get("/admin/plans");
-                setPlans(response.data.subscriptionPlan);
-            } catch (error) {
-                console.error("Error fetching plans:", error);
-                setError("Unable to load subscription plans. Please try again.");
+                const availablePlans = response.data?.subscriptionPlan;
+
+                if (active) {
+                    setPlans(
+                        Array.isArray(availablePlans)
+                            ? availablePlans
+                            : []
+                    );
+                }
+            } catch {
+                if (active) {
+                    setError(
+                        "Unable to load subscription plans. Please try again."
+                    );
+                }
             } finally {
-                setLoading(false);
+                if (active) {
+                    setLoading(false);
+                }
             }
         };
 
         fetchPlans();
+
+        return () => {
+            active = false;
+        };
     }, []);
 
     const formatPrice = (price) => {
@@ -33,6 +91,172 @@ export default function ExtendSubscription() {
         }
 
         return `Rs. ${amount.toLocaleString("en-IN")}`;
+    };
+
+    const handlePlanSelect = (plan) => {
+        if (inFlightRef.current) {
+            return;
+        }
+
+        if (selectedPlan?.id !== plan.id) {
+            attemptRef.current = null;
+            setSelectedMethod("");
+            setPaymentError("");
+        }
+
+        setSelectedPlan(plan);
+    };
+
+    const handleMethodSelect = (method) => {
+        if (inFlightRef.current) {
+            return;
+        }
+
+        if (selectedMethod !== method) {
+            setPaymentError("");
+        }
+
+        setSelectedMethod(method);
+    };
+
+    const getIdempotencyKey = (fingerprint) => {
+        if (attemptRef.current?.fingerprint === fingerprint) {
+            return attemptRef.current.key;
+        }
+
+        if (!globalThis.crypto?.randomUUID) {
+            throw new Error(
+                "Secure payment initialization is unavailable. Please use a supported browser."
+            );
+        }
+
+        const key = globalThis.crypto.randomUUID();
+
+        attemptRef.current = {
+            fingerprint,
+            key,
+        };
+
+        return key;
+    };
+
+    const handlePayment = async () => {
+        if (
+            !selectedPlan ||
+            !selectedMethod ||
+            inFlightRef.current
+        ) {
+            return;
+        }
+
+        if (
+            !PAYMENT_METHODS.some(
+                (method) => method.id === selectedMethod
+            )
+        ) {
+            setPaymentError("Please select a valid payment method.");
+            return;
+        }
+
+        const planId = Number(selectedPlan.id);
+
+        if (
+            !Number.isSafeInteger(planId) ||
+            planId <= 0
+        ) {
+            setPaymentError(
+                "Invalid subscription plan. Please select another plan."
+            );
+            return;
+        }
+
+        const fingerprint = `${planId}:${selectedMethod}`;
+
+        let idempotencyKey;
+
+        try {
+            idempotencyKey = getIdempotencyKey(fingerprint);
+        } catch (error) {
+            setPaymentError(error.message);
+            return;
+        }
+
+        inFlightRef.current = true;
+        setPaymentLoading(true);
+        setPaymentError("");
+
+        try {
+            const response = await securedApi.post(
+                "/payments",
+                {
+                    plan_id: planId,
+                    payment_method: selectedMethod,
+                },
+                {
+                    headers: {
+                        "Idempotency-Key": idempotencyKey,
+                    },
+                }
+            );
+
+            const checkoutUrl = response.data?.checkout_url;
+
+            let parsedUrl;
+
+            try {
+                if (typeof checkoutUrl !== "string") {
+                    throw new Error("Missing checkout URL");
+                }
+
+                parsedUrl = new URL(checkoutUrl);
+            } catch {
+                setPaymentError(
+                    "The payment service returned an invalid checkout URL. Check your payment status before retrying."
+                );
+                return;
+            }
+
+            const isLocalDevelopment =
+                import.meta.env.DEV &&
+                parsedUrl.protocol === "http:" &&
+                ["localhost", "127.0.0.1","192.168.18.6:5173",'192.168.18.139:5173'].includes(
+                    parsedUrl.hostname
+                );
+
+            const isTrustedProvider =
+                parsedUrl.protocol === "https:" &&
+                PAYMENT_ORIGINS[selectedMethod]?.includes(
+                    parsedUrl.origin
+                );
+
+            if (!isLocalDevelopment && !isTrustedProvider) {
+                setPaymentError(
+                    "The payment service returned an untrusted checkout destination. Please contact support."
+                );
+                return;
+            }
+
+            window.location.assign(parsedUrl.href);
+        } catch (error) {
+            setPaymentError(
+                error.response?.data?.message ||
+                "We couldn't confirm the payment request. Retry with the same plan and payment method to reuse this payment attempt."
+            );
+        } finally {
+            inFlightRef.current = false;
+            setPaymentLoading(false);
+        }
+    };
+
+    const handleChangePlan = () => {
+        if (inFlightRef.current) {
+            return;
+        }
+
+        setSelectedPlan(null);
+        setSelectedMethod("");
+        setPaymentError("");
+        attemptRef.current = null;
     };
 
     return (
@@ -90,7 +314,9 @@ export default function ExtendSubscription() {
                 ) : plans.length === 0 ? (
                     <div className="plans-status">
                         <h3>No plans available yet</h3>
-                        <p>Please check back later for available plans.</p>
+                        <p>
+                            Please check back later for available plans.
+                        </p>
                     </div>
                 ) : (
                     <>
@@ -104,15 +330,18 @@ export default function ExtendSubscription() {
 
                             <span className="plans-count">
                                 {plans.length}{" "}
-                                {plans.length === 1 ? "plan" : "plans"} available
+                                {plans.length === 1 ? "plan" : "plans"}{" "}
+                                available
                             </span>
                         </div>
 
                         <div className="plans-grid">
-
                             {plans.map((plan, index) => {
-                                const isSelected = selectedPlan?.id === plan.id;
-                                const isFeatured = plans.length > 1 &&
+                                const isSelected =
+                                    selectedPlan?.id === plan.id;
+
+                                const isFeatured =
+                                    plans.length > 1 &&
                                     index === Math.floor(plans.length / 2);
 
                                 return (
@@ -122,7 +351,9 @@ export default function ExtendSubscription() {
                                             "plan-card",
                                             isFeatured ? "plan-featured" : "",
                                             isSelected ? "plan-selected" : "",
-                                        ].filter(Boolean).join(" ")}
+                                        ]
+                                            .filter(Boolean)
+                                            .join(" ")}
                                     >
                                         {isFeatured && (
                                             <div className="plan-ribbon">
@@ -184,8 +415,11 @@ export default function ExtendSubscription() {
                                         <button
                                             type="button"
                                             className="plan-select-button"
-                                            onClick={() => setSelectedPlan(plan)}
+                                            onClick={() =>
+                                                handlePlanSelect(plan)
+                                            }
                                             aria-pressed={isSelected}
+                                            disabled={paymentLoading}
                                         >
                                             {isSelected ? (
                                                 <>
@@ -205,29 +439,115 @@ export default function ExtendSubscription() {
                         </div>
 
                         {selectedPlan && (
-                            <div className="plan-selection-summary" role="status">
-                                <div className="selection-info">
-                                    <div className="selection-check">✓</div>
-
+                            <section
+                                className="payment-section"
+                                aria-labelledby="payment-heading"
+                            >
+                                <div className="payment-heading">
                                     <div>
-                                        <p className="selection-label">
+                                        <span className="payment-eyebrow">
                                             YOUR SELECTED PLAN
-                                        </p>
-                                        <h3>{selectedPlan.name}</h3>
-                                        <p className="selection-price">
+                                        </span>
+
+                                        <h2 id="payment-heading">
+                                            Choose a payment method
+                                        </h2>
+
+                                        <p>
+                                            {selectedPlan.name} ·{" "}
                                             {formatPrice(selectedPlan.price)}
                                         </p>
                                     </div>
+
+                                    <button
+                                        type="button"
+                                        className="change-plan-button"
+                                        onClick={handleChangePlan}
+                                        disabled={paymentLoading}
+                                    >
+                                        Change plan
+                                    </button>
                                 </div>
+
+                                <div className="payment-methods">
+                                    {PAYMENT_METHODS.map((method) => {
+                                        const isMethodSelected =
+                                            selectedMethod === method.id;
+
+                                        return (
+                                            <button
+                                                key={method.id}
+                                                type="button"
+                                                className={[
+                                                    "payment-method",
+                                                    isMethodSelected
+                                                        ? "payment-method-selected"
+                                                        : "",
+                                                ]
+                                                    .filter(Boolean)
+                                                    .join(" ")}
+                                                onClick={() =>
+                                                    handleMethodSelect(
+                                                        method.id
+                                                    )
+                                                }
+                                                aria-pressed={isMethodSelected}
+                                                disabled={paymentLoading}
+                                            >
+                                                <span
+                                                    className={`payment-logo payment-logo-${method.id}`}
+                                                >
+                                                    {method.name}
+                                                </span>
+
+                                                <span className="payment-method-description">
+                                                    {method.description}
+                                                </span>
+
+                                                <span className="payment-method-radio">
+                                                    {isMethodSelected ? "✓" : ""}
+                                                </span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                {paymentError && (
+                                    <div
+                                        className="payment-error"
+                                        role="alert"
+                                    >
+                                        {paymentError}
+                                    </div>
+                                )}
 
                                 <button
                                     type="button"
-                                    className="change-plan-button"
-                                    onClick={() => setSelectedPlan(null)}
+                                    className="payment-submit"
+                                    onClick={handlePayment}
+                                    disabled={
+                                        !selectedMethod || paymentLoading
+                                    }
                                 >
-                                    Clear selection
+                                    {paymentLoading ? (
+                                        <>
+                                            <span className="payment-button-spinner"></span>
+                                            Processing request...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Continue to payment
+                                            <span>→</span>
+                                        </>
+                                    )}
                                 </button>
-                            </div>
+
+                                <p className="payment-security-note">
+                                    <span>🔒</span>
+                                    Your payment will be processed through
+                                    the selected payment provider.
+                                </p>
+                            </section>
                         )}
                     </>
                 )}
@@ -235,11 +555,11 @@ export default function ExtendSubscription() {
                 <footer className="plans-footer">
                     <span>Choose with confidence.</span>
                     <p>
-                        Select the subscription plan that best suits your needs.
+                        Select the subscription plan that best suits your
+                        needs.
                     </p>
                 </footer>
             </div>
         </div>
     );
 }
-
