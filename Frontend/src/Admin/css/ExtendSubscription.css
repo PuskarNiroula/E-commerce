@@ -506,3 +506,238 @@
     }
 }
 
+.payment-section {
+    margin-top: 40px;
+    padding: 32px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 12px 35px rgba(15, 23, 42, 0.05);
+}
+
+.payment-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 26px;
+}
+
+.payment-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.payment-heading h2 {
+    margin: 0 0 8px;
+    color: #172033;
+    font-size: clamp(21px, 3vw, 28px);
+}
+
+.payment-heading p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.payment-methods {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.payment-method {
+    position: relative;
+    display: flex;
+    min-height: 150px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 22px;
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+    background: #ffffff;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.payment-method:hover:not(:disabled) {
+    border-color: #94a3b8;
+    transform: translateY(-2px);
+}
+
+.payment-method-selected {
+    border: 2px solid #4338ca;
+    padding: 21px;
+    background: #f5f5ff;
+    box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.07);
+}
+
+.payment-method:focus-visible,
+.payment-submit:focus-visible,
+.change-plan-button:focus-visible {
+    outline: 3px solid #818cf8;
+    outline-offset: 3px;
+}
+
+.payment-logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+}
+
+.payment-logo-esewa {
+    color: #16823b;
+}
+
+.payment-logo-khalti {
+    color: #5b35a7;
+}
+
+.payment-logo-stripe {
+    color: #635bff;
+}
+
+.payment-method-description {
+    max-width: 180px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.payment-method-radio {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: grid;
+    width: 23px;
+    height: 23px;
+    place-items: center;
+    border: 1px solid #cbd5e1;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 13px;
+}
+
+.payment-method-selected .payment-method-radio {
+    border-color: #4338ca;
+    background: #4338ca;
+}
+
+.payment-method:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.payment-submit {
+    display: flex;
+    width: 100%;
+    min-height: 54px;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+    padding: 14px 20px;
+    border: 0;
+    border-radius: 12px;
+    background: #312e81;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.payment-submit:hover:not(:disabled) {
+    background: #4338ca;
+}
+
+.payment-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.payment-button-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: payment-spin 0.7s linear infinite;
+}
+
+.payment-security-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 16px 0 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.payment-error {
+    margin-top: 18px;
+    padding: 13px 15px;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+@keyframes payment-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 700px) {
+    .payment-section {
+        padding: 22px 16px;
+    }
+
+    .payment-methods {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .payment-method {
+        min-height: 105px;
+        gap: 8px;
+        padding: 18px;
+    }
+
+    .payment-method-selected {
+        padding: 17px;
+    }
+
+    .payment-heading {
+        flex-direction: column;
+        gap: 14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .payment-method,
+    .payment-submit {
+        transition: none;
+    }
+
+    .payment-button-spinner {
+        animation-duration: 1.5s;
+    }
+}
+

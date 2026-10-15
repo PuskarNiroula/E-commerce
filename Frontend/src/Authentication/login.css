@@ -1,0 +1,213 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap');
+
+.business-login {
+    --ink: #17211d;
+    --ink-soft: #55625a;
+    --paper: #f3f4f1;
+    --surface: #ffffff;
+    --line: #dce0d8;
+    --accent: #1f5d42;
+    --accent-hover: #17452f;
+    --accent-soft: #e7f0ea;
+    --error: #a3352b;
+    --error-soft: #f7e9e7;
+
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--paper);
+    padding: 48px 20px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--ink);
+}
+
+.login-container {
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 44px;
+    box-shadow: 0 1px 2px rgba(23, 33, 29, 0.04), 0 16px 32px -20px rgba(23, 33, 29, 0.18);
+}
+
+.login-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 36px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+}
+
+.login-brand-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #ffffff;
+    font-family: 'Fraunces', serif;
+    font-size: 23px;
+    font-weight: 600;
+}
+
+.login-header {
+    margin-bottom: 30px;
+}
+
+.login-header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 30px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin: 0 0 8px;
+    color: var(--ink);
+}
+
+.login-header p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    margin: 0;
+}
+
+.login-form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 22px;
+}
+
+.login-form-group label {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 7px;
+}
+
+.business-login input {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--ink);
+    background: #ffffff;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.business-login input::placeholder {
+    color: #9aa39c;
+}
+
+.business-login input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.login-password-field {
+    position: relative;
+}
+
+.login-password-field input {
+    padding-right: 44px;
+}
+
+.login-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+}
+
+.login-password-toggle svg {
+    width: 18px;
+    height: 18px;
+}
+
+.login-password-toggle:hover {
+    color: var(--ink);
+}
+
+.login-error {
+    display: flex;
+    align-items: center;
+    background: var(--error-soft);
+    border-left: 3px solid var(--error);
+    color: var(--error);
+    font-size: 13.5px;
+    line-height: 1.5;
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin: 0 0 20px;
+}
+
+.login-submit {
+    width: 100%;
+    padding: 13px 24px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.login-submit:hover:not(:disabled) {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.login-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.login-footer {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #8b958c;
+}
+
+@media (max-width: 600px) {
+    .business-login {
+        padding: 24px 14px;
+    }
+
+    .login-container {
+        padding: 30px 22px;
+    }
+
+    .login-header h1 {
+        font-size: 26px;
+    }
+
+    .login-brand {
+        margin-bottom: 30px;
+    }
+}
