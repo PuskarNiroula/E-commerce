@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\ApiController\Authentication\AuthenticationApiController;
+use App\Http\ApiController\StoreAdmin\PaymentController;
 use App\Http\ApiController\StoreAdmin\SubscriptionController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\JwtAuthenticationMiddleware;
@@ -21,7 +22,14 @@ use Illuminate\Support\Facades\Route;
                     Route::get('/plans','showAvailableSubscriptions')->name('api.subscription.show');
                 });
             });
+
+            Route::controller(PaymentController::class)->group(function () {
+                Route::post('/payment','makePayment')->name('api.payment.create');
+            });
+
+
         });
+
 
 
 

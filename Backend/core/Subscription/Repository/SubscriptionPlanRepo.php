@@ -25,7 +25,9 @@ class SubscriptionPlanRepo implements SubscriptionPlanRepoInterface
 
     public function getAllActivePlans():Collection
     {
-        return SubscriptionPlan::where('status','active')->get();
+        return SubscriptionPlan::where('status','active')
+            ->where('subscription_plan_id',"!=",1)
+            ->get();
     }
 
     public function activatePlan($planId):void
