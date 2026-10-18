@@ -11,4 +11,6 @@ interface SubscriptionPlanRepoInterface
     public function deactivatePlan($planId);
     public function extendPlan($planId);
 
+    public function getPlanPriceById(int $planId): int;
+
 }

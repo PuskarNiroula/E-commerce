@@ -9,5 +9,6 @@ interface ShopRepositoryInterface
     public function createShop(ShopCreateDto $shopCreateDto):void;
     public function getShopByEmail(string $email);
     public function getShopByShopName(string $shopName);
+    public function getShopByOwnerId(string $ownerId);
 
 }

@@ -34,5 +34,13 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'esewa' => [
+        'product_code' => env('ESEWA_MERCHANT_CODE', 'EPAYTEST'),
+        'secret_key' => env('ESEWA_SECRET_KEY'),
+        'payment_url' => env(
+            'ESEWA_PAYMENT_URL',
+            'https://rc-epay.esewa.com.np/api/epay/main/v2/form'
+        ),
+    ],
 
 ];

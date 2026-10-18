@@ -7,7 +7,9 @@ use Illuminate\Support\ServiceProvider;
 use ReflectionException;
 use Shop\Repository\ShopRepository;
 use Shop\RepositoryInterface\ShopRepositoryInterface;
+use Subscription\Repository\PaymentRepo;
 use Subscription\Repository\SubscriptionPlanRepo;
+use Subscription\RepositoryInterface\PaymentRepoInterface;
 use Subscription\RepositoryInterface\SubscriptionPlanRepoInterface;
 use User\Repository\UserRepository;
 use User\RepositoryInterface\UserRepositoryInterface;
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
         App::bind(UserRepositoryInterface::class,UserRepository::class);
         App::bind(ShopRepositoryInterface::class,ShopRepository::class);
         App::bind(SubscriptionPlanRepoInterface::class,SubscriptionPlanRepo::class);
+        App::bind(PaymentRepoInterface::class,PaymentRepo::class);
     }
 
     /**

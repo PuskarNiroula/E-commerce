@@ -17,22 +17,20 @@ use Illuminate\Support\Facades\Route;
     Route::middleware(JwtAuthenticationMiddleware::class)->group(function () {
         Route::middleware(AdminMiddleware::class)->group(function () {
             Route::prefix('admin')->group(function () {
+
+
                 Route::controller(SubscriptionController::class)->group(function () {
                     Route::get('/get-my-plan','showMyCurrentPlan')->name('api.subscription.get-my-plan');
                     Route::get('/plans','showAvailableSubscriptions')->name('api.subscription.show');
                 });
+
+                Route::controller(PaymentController::class)->group(function () {
+                    Route::post('/payment','makePayment')->name('api.payment.create');
+                });
+
+
+                
             });
-
-            Route::controller(PaymentController::class)->group(function () {
-                Route::post('/payment','makePayment')->name('api.payment.create');
-            });
-
-
         });
-
-
-
-
-
     });
 

@@ -47,4 +47,8 @@ class SubscriptionPlanRepo implements SubscriptionPlanRepoInterface
     {
         // TODO: Implement extendPlan() method.
     }
+    public function getPlanPriceById(int $planId): int
+    {
+        return SubscriptionPlan::findOrFail($planId)->price;
+    }
 }

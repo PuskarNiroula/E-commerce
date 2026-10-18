@@ -49,4 +49,13 @@ class ShopRepository implements ShopRepositoryInterface
     {
         return Shop::where('name', $shopName)->first();
     }
+
+    /**
+     * @param string $ownerId
+     * @return mixed
+     */
+    public function getShopByOwnerId(string $ownerId):Shop
+    {
+        return Shop::where('owner_id', $ownerId)->first();
+    }
 }

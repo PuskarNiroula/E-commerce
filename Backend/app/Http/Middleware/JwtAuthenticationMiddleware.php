@@ -28,8 +28,8 @@ class JwtAuthenticationMiddleware
             $request->setUserResolver(fn () => $user);
 
             return $next($request);
-        } catch (Exception) {
-            return response()->json(['error' => ' final Lodey ka lasun'], 401);
+        } catch (Exception $e) {
+            return response()->json($e->getMessage(), 401);
         }
     }
 }

@@ -7,6 +7,7 @@ return [
     'allowed_methods' => ['*'],
     'allowed_origins' => [
         'https://ecom.com',
+        'http://192.168.18.139:5173',
     ],
     'allowed_origins_patterns' => [],
 

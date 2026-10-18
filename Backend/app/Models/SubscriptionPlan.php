@@ -9,11 +9,16 @@ class SubscriptionPlan extends Model
 {
 
     protected $table = 'subscription_plans';
+    protected $primaryKey = 'subscription_plan_id';
     protected $guarded=[];
 
     public function StorePlans():HasMany
     {
-        return $this->HasMany(StoreSubscriptionPlan::class,'subscription_plan_id','subscription_plan_id');
+        return $this->HasMany(StoreSubscriptionPlan::class,'store_subscription_plan_id','store_subscription_plan_id');
+    }
+
+    public function Payment():HasMany{
+        return $this->HasMany(Payment::class,'payment_id','payment_id');
     }
 
 

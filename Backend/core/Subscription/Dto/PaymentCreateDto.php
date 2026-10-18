@@ -4,9 +4,10 @@ namespace Subscription\Dto;
 
 class PaymentCreateDto
 {
-    public int $storeId;
+    public ?string $idempotencyKey=null;
+    public string $paymentMethod;
     public int $planId;
-    public int $userId;
+    public int $userId=1;
 
 
 }
