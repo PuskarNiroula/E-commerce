@@ -7,6 +7,7 @@ import Login from './Authentication/login.jsx'
 import AdminLayout from './Admin/AdminLayout.jsx'
 import AdminDashboard from './Admin/AdminPages/AdminDashboard.jsx'
 import ExtendedSubscription from './Admin/AdminPages/ExtendSubscription.jsx'
+import "./Admin/css/ExtendSubscription.css";
 import { ToastContainer } from "react-toastify";
 
 

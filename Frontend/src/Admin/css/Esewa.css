@@ -1,0 +1,111 @@
+
+.esewa-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: #f4f7fb;
+    font-family: Inter, system-ui, sans-serif;
+}
+
+.esewa-card {
+    width: 100%;
+    max-width: 440px;
+    padding: 32px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.esewa-logo {
+    color: #60a900;
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.esewa-card h2 {
+    margin-bottom: 10px;
+}
+
+.esewa-card p {
+    color: #64748b;
+}
+
+.payment-details {
+    margin: 28px 0;
+    padding: 18px;
+    background: #f8fafc;
+    border-radius: 10px;
+    text-align: left;
+}
+
+.payment-details div {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 16px;
+}
+
+.payment-details div:last-child {
+    margin-bottom: 0;
+}
+
+.payment-details span {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.transaction-id {
+    overflow-wrap: anywhere;
+    font-size: 13px;
+}
+
+.countdown {
+    margin: 20px 0;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    margin: 0 auto 12px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #60a900;
+    border-radius: 50%;
+    animation: esewa-spin 0.8s linear infinite;
+}
+
+@keyframes esewa-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.pay-button,
+.esewa-card button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 9px;
+    background: #60a900;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.pay-button:hover,
+.esewa-card button:hover {
+    background: #4d8b00;
+}
+
+.esewa-error {
+    color: #dc2626 !important;
+}
+
+.secure-note {
+    margin-top: 18px;
+    font-size: 12px;
+}
